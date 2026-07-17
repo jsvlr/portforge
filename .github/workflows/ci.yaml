@@ -56,4 +56,4 @@ jobs:
         run: php artisan migrate --force
 
       - name: Run Pest tests
-        run: ./vender/bin/pest
+        run: php artisan test

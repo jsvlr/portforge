@@ -122,10 +122,12 @@ class General extends Settings
                         Tab::make('About')
                             ->icon('heroicon-o-user-circle')
                             ->iconPosition(IconPosition::Before)
+                            ->columns(2)
                             ->schema([
                                 Section::make('Personal Information')
                                     ->description('Basic personal details.')
                                     ->collapsible()
+                                    ->columnSpanFull()
                                     ->columns(7)
                                     ->schema([
                                         TextInput::make('general.firstname')
@@ -185,8 +187,41 @@ class General extends Settings
                                             }),
 
                                         TextInput::make('general.other_gender')
+                                            ->label('If any')
                                             ->disabled(fn(Get $get) => $get('general.gender') != 'other')
 
+                                    ]),
+
+                                Section::make('Professional Information')
+                                    ->description('Your professional identity.')
+                                    ->collapsible()
+                                    ->columnSpanFull()
+                                    ->columns(3)
+                                    ->schema([
+                                        TextInput::make('general.profession')
+                                            ->columnSpan(2)
+                                            ->label('Current Profession')
+                                            ->live(),
+
+                                        TextInput::make('general.job_title')
+                                            ->columnSpan(1)
+                                            ->label('Job Title'),
+
+                                        TextInput::make('general.company'),
+
+                                        DatePicker::make('general.start_date_working')
+                                            ->disabled(fn(Get $get) => blank($get('general.profession'))),
+
+                                        DatePicker::make('general.end_date_working')
+                                            ->disabled(fn(Get $get) => blank($get('general.start_date_working'))),
+
+                                        Select::make('general.employment_status')
+                                            ->options([
+                                                'student' => 'Student',
+                                                'freelancer' => 'Freelancer',
+                                                'employed' => 'Employed',
+                                                'open_to_work' => 'Open to Work'
+                                            ])
                                     ])
                             ])
                     ]),

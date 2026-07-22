@@ -19,13 +19,15 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
-use DiogoGPinto\AuthUIEnhancer\Pages\Auth\AuthUiEnhancerLogin;
+use Outerweb\FilamentSettings\SettingsPlugin;
+use App\Providers\Filament\AdminBaseProvider;
+use Filament\Auth\MultiFactor\Email\EmailAuthentication;
 
-class AdminPanelProvider extends PanelProvider
+class AdminPanelProvider extends AdminBaseProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        $panel
             ->default()
             ->id('admin')
             ->path('admin')
@@ -33,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(
                 \App\Filament\Pages\Auth\Login::class
             )
+            ->profile(isSimple: false)
             ->passwordReset()
             ->colors([
                 'primary' => Color::Blue,
@@ -51,7 +54,12 @@ class AdminPanelProvider extends PanelProvider
                 AuthUIEnhancerPlugin::make()
                     ->formPanelPosition('right')
                     ->formPanelWidth('40%')
-                    ->emptyPanelView('filament.auth.login-empty-panel')
+                    ->emptyPanelView('filament.auth.login-empty-panel'),
+
+                SettingsPlugin::make()
+                    ->pages([
+                        \App\Filament\Pages\Settings\General::class
+                    ])
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -67,5 +75,7 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+
+        return $this->applySettings($panel);
     }
 }

@@ -27,7 +27,7 @@ class General extends Settings
 {
     protected string $brandDisk = 'public';
     protected string $brandDirectory = 'brand';
-    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+    protected static string|UnitEnum|null $navigationGroup = \App\Enums\NavigationGroup::Settings;
 
     protected function brandLogoSetting(FileUpload $fileUpload): FileUpload
     {

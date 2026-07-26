@@ -24,9 +24,15 @@ abstract class AdminBaseProvider extends PanelProvider
             $favicon = Storage::url(Setting::get('general.favicon'));
             $brandName = Setting::get('general.brand_name');
 
+            if ($brandLogo != null) {
+                $panel->brandLogo($brandLogo);
+            }
+
+            if ($favicon != null) {
+                $panel->favicon($favicon);
+            }
+
             $panel
-                ->brandLogo($brandLogo)
-                ->favicon($favicon)
                 ->brandName($brandName);
         } catch (Exception $e) {
             // Settings table may not exist yet (e.g. before first migration/seed)

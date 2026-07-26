@@ -45,26 +45,29 @@ class PostCategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255)
-                    ->live()
-                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
+        return $schema->components(static::getFormSchema());
+    }
 
-                TextInput::make('slug')
-                    ->readOnly()
-                    ->required(),
+    public static function getFormSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255)
+                ->live()
+                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state))),
 
-                RichEditor::make('description')
-                    ->afterLabel('optional')
-                    ->columnSpanFull(),
+            TextInput::make('slug')
+                ->readOnly()
+                ->required(),
 
-                Toggle::make('is_active')
-                    ->default(true)
+            RichEditor::make('description')
+                ->columnSpanFull()
+                ->afterLabel('optional'),
 
-            ]);
+            Toggle::make('is_active')
+                ->default(true)
+        ];
     }
 
     public static function table(Table $table): Table
@@ -90,36 +93,22 @@ class PostCategoryResource extends Resource
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('posts_count')
+                    ->counts('posts')
+                    ->default(0)
+                    ->badge(),
+
                 IconColumn::make('is_active')
                     ->label('Visibility')
                     ->sortable()
-                    ->alignCenter()
+
                     ->boolean(),
-
-                // ToggleColumn::make('is_active')
-                //     ->label('Active')
-                //     ->onColor('success')
-                //     ->offColor('gray')
-                //     ->alignCenter()
-                //     ->afterStateUpdated(function ($record, $state) {
-
-                //         $newState = $state ? "Activated" : "Deactivated";
-                //         $icon = $state ? Heroicon::CheckCircle : Heroicon::ExclamationTriangle;
-                //         $iconColor = $state ? 'success' : 'warning';
-
-                //         Notification::make('is_active_updated')
-                //             ->title("Record Updated!")
-                //             ->body("$record->name has been $newState")
-                //             ->icon($icon)
-                //             ->iconColor($iconColor)
-                //             ->send();
-
-                //     }),
 
                 TextColumn::make('created_at')
                     ->date('M d, Y')
                     ->sortable()
                     ->toggleable(),
+
             ])
             ->filters([
                 SelectFilter::make('is_active')
@@ -129,12 +118,31 @@ class PostCategoryResource extends Resource
                     ])
             ])
             ->recordActions([
-
                 ActionGroup::make([
+                    Action::make('toggleVisibility')
+                        ->label(fn($record) => $record->is_active ? 'Deactivate' : 'Activate')
+                        ->icon(fn($record) => $record->is_active ? Heroicon::ExclamationTriangle : Heroicon::RocketLaunch)
+                        ->color(fn($record) => $record->is_active  ? 'danger' : 'success')
+                        ->action(function ($record) {
+                            $record->update([
+                                'is_active' => !$record->is_active,
+                            ]);
+
+                            $isVisible = $record->is_active;
+                            $color = $isVisible ? 'success' : 'danger';
+                            $visible = $isVisible ? 'Activated' : 'Deactivated';
+
+                            Notification::make('visibilityNoti')
+                                ->icon($isVisible ? Heroicon::RocketLaunch : Heroicon::ExclamationTriangle)
+                                ->iconColor($color)
+                                ->title('Category has been updated')
+                                ->body("$record->name has been $visible")
+                                ->send();
+                        }),
+
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make(),
-
                 ])
             ])
             ->toolbarActions([

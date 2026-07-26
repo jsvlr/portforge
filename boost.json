@@ -3,7 +3,5 @@
         "claude_code"
     ],
     "cloud": false,
-    "mcp": true,
-    "nightwatch": false,
-    "sail": false
+    "guidelines": true
 }

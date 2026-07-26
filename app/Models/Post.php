@@ -21,14 +21,16 @@ class Post extends Model
         'published_at',
         'post_category_id',
         'views',
-
+        'tags',
         'meta_title',
         'meta_description'
     ];
 
     protected $casts = [
         'status' => \App\Enums\PostStatusEnum::class,
-        'views' => 'integer'
+        'views' => 'integer',
+        'published_at' => 'date',
+        'tags' => 'array'
     ];
 
     public function post_category(): BelongsTo

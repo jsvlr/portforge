@@ -6,6 +6,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
@@ -66,6 +67,19 @@ class PostForm
 
                 DatePicker::make('published_at')
                     ->default(now()),
+
+                TagsInput::make('tags')
+                    ->suggestions(
+                        fn() => \App\Models\Post::query()
+                            ->pluck('tags')
+                            ->flatten()
+                            ->unique()
+                            ->values()
+                            ->toArray()
+                    )
+                    ->separator(',')
+                    ->splitKeys(['Tab', ',']),
+
 
                 Select::make('status')
                     ->options(\App\Enums\PostStatusEnum::class)

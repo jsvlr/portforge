@@ -27,6 +27,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Str;
 use Override;
 use UnitEnum;
@@ -42,6 +43,7 @@ class PostCategoryResource extends Resource
     protected static ?string $navigationLabel = 'Categories';
 
     protected static string|UnitEnum|null $navigationGroup = \App\Enums\NavigationGroup::Blogs;
+
 
     public static function form(Schema $schema): Schema
     {
@@ -158,5 +160,18 @@ class PostCategoryResource extends Resource
         return [
             'index' => ManagePostCategories::route('/'),
         ];
+    }
+
+    #[Override]
+    public static function getNavigationBadge(): ?string
+    {
+        $notActiveCategoryCount = static::getModel()::where('is_active', false)->count();
+        return $notActiveCategoryCount > 0 ? $notActiveCategoryCount : null;
+    }
+
+    #[Override]
+    public static function getNavigationBadgeTooltip(): string|Htmlable|null
+    {
+        return 'not active category';
     }
 }

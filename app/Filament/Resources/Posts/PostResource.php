@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Override;
 use UnitEnum;
 
 class PostResource extends Resource
@@ -49,5 +51,17 @@ class PostResource extends Resource
             'create' => CreatePost::route('/create'),
             'edit' => EditPost::route('/{record}/edit'),
         ];
+    }
+
+    #[Override]
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('status', \App\Enums\PostStatusEnum::Draft)->count();
+    }
+
+    #[Override]
+    public static function getNavigationBadgeTooltip(): string|Htmlable|null
+    {
+        return 'draft posts';
     }
 }

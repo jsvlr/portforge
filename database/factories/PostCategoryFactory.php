@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use App\Models\PostCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<PostCategory>
@@ -17,8 +19,14 @@ class PostCategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $user = User::factory()->create();
+        $name = fake()->word();
         return [
-            //
+            'name' => $name,
+            'user_id' => $user->id,
+            'slug' => Str::slug($name),
+            'description' => fake()->sentence(),
+            'is_active' => true
         ];
     }
 }

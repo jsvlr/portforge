@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongToUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Post extends Model
+
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory;
+    use HasFactory,
+        BelongToUser;
 
     protected $fillable = [
         'title',
+        'user_id',
         'slug',
         'excerpt',
         'content',

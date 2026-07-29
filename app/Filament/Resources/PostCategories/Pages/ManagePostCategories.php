@@ -13,12 +13,10 @@ class ManagePostCategories extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+        return $this->getModel()::count() > 0 ? [
             CreateAction::make()
-                ->label('New Category')
                 ->icon('heroicon-m-plus')
-                ->color('primary'),
-        ];
+        ] : [];
     }
 
     public function getTitle(): string

@@ -14,13 +14,11 @@ class ListPosts extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        if (\App\Models\Post::count() > 0) {
-            return [
-                CreateAction::make()
-                    ->icon(Heroicon::Plus),
-            ];
-        }
-        return [];
+
+        return $this->getModel()::count() > 0 ? [
+            CreateAction::make()
+                ->icon('heroicon-m-plus')
+        ] : [];
     }
 
     #[Override]

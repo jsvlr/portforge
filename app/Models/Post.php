@@ -37,6 +37,11 @@ class Post extends Model
         'tags' => 'array'
     ];
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function post_category(): BelongsTo
     {
         return $this->belongsTo(PostCategory::class);

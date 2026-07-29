@@ -165,13 +165,13 @@ class PostCategoryResource extends Resource
     #[Override]
     public static function getNavigationBadge(): ?string
     {
-        $notActiveCategoryCount = static::getModel()::where('is_active', false)->count();
-        return $notActiveCategoryCount > 0 ? $notActiveCategoryCount : null;
+
+        return static::getModel()::count();
     }
 
     #[Override]
     public static function getNavigationBadgeTooltip(): string|Htmlable|null
     {
-        return 'not active category';
+        return 'total category';
     }
 }

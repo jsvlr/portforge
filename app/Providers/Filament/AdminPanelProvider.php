@@ -21,6 +21,7 @@ use DiogoGPinto\AuthUIEnhancer\AuthUIEnhancerPlugin;
 use Outerweb\FilamentSettings\SettingsPlugin;
 use App\Providers\Filament\AdminBaseProvider;
 use Filament\Auth\MultiFactor\Email\EmailAuthentication;
+use Filament\Enums\DatabaseNotificationsPosition;
 
 class AdminPanelProvider extends AdminBaseProvider
 {
@@ -37,6 +38,7 @@ class AdminPanelProvider extends AdminBaseProvider
             ->profile(isSimple: false)
             ->passwordReset()
             ->registration()
+            ->databaseNotifications()
             ->colors([
                 'primary' => Color::Blue,
             ])

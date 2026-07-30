@@ -8,6 +8,7 @@ use Override;
 
 enum NavigationGroup: string implements HasLabel
 {
+    case Projects = 'projects';
     case Blogs = 'blogs';
     case Settings = 'settings';
 
@@ -16,8 +17,9 @@ enum NavigationGroup: string implements HasLabel
     public function getLabel(): string|Htmlable|null
     {
         return match ($this) {
+            self::Projects => 'Projects',
             self::Blogs => 'Blogs',
-            self::Settings => 'Settings'
+            self::Settings => 'Settings',
         };
     }
 }

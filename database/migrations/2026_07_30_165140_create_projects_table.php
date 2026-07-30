@@ -11,11 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-        });
+
 
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
@@ -24,14 +20,12 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->text('content')->nullable();
             $table->string('client')->nullable();
-            $table->foreignId('project_role_id')->constrained()->nullOnDelete();
-
+            $table->foreignId('project_role_id')->constrained()->cascadeOnDelete();
             $table->string('status')->nullable();
             $table->date('started_at')->default(now()->toDateString());
             $table->date('completed_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->json('gallery');
-
             $table->string('meta_title')->nullable();
             $table->string('meta_description')->nullable();
             $table->integer('views')->default(0);

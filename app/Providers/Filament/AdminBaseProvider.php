@@ -19,25 +19,25 @@ abstract class AdminBaseProvider extends PanelProvider
 
     protected function applyGeneralSettings(Panel $panel): Panel
     {
-        try {
-            $brandLogo = Storage::url(Setting::get('general.brand_logo'));
-            $favicon = Storage::url(Setting::get('general.favicon'));
-            $brandName = Setting::get('general.brand_name');
+        // try {
+        //     $brandLogo = Storage::url(Setting::get('general.brand_logo'));
+        //     $favicon = Storage::url(Setting::get('general.favicon'));
+        //     $brandName = Setting::get('general.brand_name');
 
-            if ($brandLogo != null) {
-                $panel->brandLogo($brandLogo);
-            }
+        //     if ($brandLogo != null) {
+        //         $panel->brandLogo($brandLogo);
+        //     }
 
-            if ($favicon != null) {
-                $panel->favicon($favicon);
-            }
+        //     if ($favicon != null) {
+        //         $panel->favicon($favicon);
+        //     }
 
-            $panel
-                ->brandName($brandName);
-        } catch (Exception $e) {
-            // Settings table may not exist yet (e.g. before first migration/seed)
-            \Illuminate\Support\Facades\Log::warning('Could not apply general panel settings: ' . $e->getMessage());
-        }
+        //     $panel
+        //         ->brandName($brandName);
+        // } catch (Exception $e) {
+        //     // Settings table may not exist yet (e.g. before first migration/seed)
+        //     \Illuminate\Support\Facades\Log::warning('Could not apply general panel settings: ' . $e->getMessage());
+        // }
 
         return $panel;
     }

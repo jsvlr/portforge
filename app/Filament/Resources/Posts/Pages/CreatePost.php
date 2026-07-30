@@ -17,7 +17,7 @@ class CreatePost extends CreateRecord
     {
         // return parent::mutateFormDataBeforeCreate($data);
         $data['meta_title'] = $data['title'];
-        $data['met_description'] = $data['excerpt'];
+        $data['meta_description'] = $data['excerpt'];
 
         return $data;
     }

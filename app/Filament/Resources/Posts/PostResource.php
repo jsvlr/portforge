@@ -56,12 +56,12 @@ class PostResource extends Resource
     #[Override]
     public static function getNavigationBadge(): ?string
     {
-        return static::getModel()::where('status', \App\Enums\PostStatusEnum::Draft)->count();
+        return static::getModel()::count();
     }
 
     #[Override]
     public static function getNavigationBadgeTooltip(): string|Htmlable|null
     {
-        return 'draft posts';
+        return 'total posts';
     }
 }

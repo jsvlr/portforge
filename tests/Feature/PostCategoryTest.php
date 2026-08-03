@@ -60,7 +60,7 @@ it('can create category', function () {
 
     $testForm['user_id'] = $this->user->id;
 
-    assertDatabaseHas('post_categories', $testForm);
+    assertDatabaseHas($this->table, $testForm);
 });
 
 
@@ -81,7 +81,7 @@ it('can update category', function () {
 
     $newCategoryUpdated['user_id'] = $this->user->id;
 
-    assertDatabaseHas('post_categories', $newCategoryUpdated);
+    assertDatabaseHas($this->table, $newCategoryUpdated);
 });
 
 it('cannot edit other user post category', function () {
@@ -101,7 +101,7 @@ it('cannot delete other user post category', function () {
         ->mountAction(TestAction::make('delete')->table($otherPostCategory))
         ->assertActionNotMounted();
 
-    assertDatabaseHas('post_categories', ['id' => $otherPostCategory->id]);
+    assertDatabaseHas($this->table, ['id' => $otherPostCategory->id]);
 });
 
 it('can delete category', function () {
@@ -113,5 +113,5 @@ it('can delete category', function () {
         ->callMountedAction()
         ->assertHasNoTableActionErrors();
 
-    assertDatabaseMissing('post_categories', ['id' => $category->id]);
+    assertDatabaseMissing($this->table, ['id' => $category->id]);
 });

@@ -7,22 +7,26 @@ use function Pest\Laravel\assertDatabaseMissing;
 use Livewire\Livewire;
 use App\Models\User;
 use App\Filament\Resources\PostCategories\Pages\ManagePostCategories;
+use App\Models\Post;
 use App\Models\PostCategory;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 uses()->beforeEach(function () {
     $this->user = User::factory()->createOne();
+    $this->table = with(new PostCategory)->getTable();
+
     actingAs($this->user);
 });
 
-test('can render page', function () {
+IT('can render page', function () {
     $this
         ->get(ManagePostCategories::getUrl())
         ->assertSuccessful();
 });
 
 
-test('can see categories', function () {
+it('can see categories', function () {
     $category = PostCategory::factory()->for($this->user)->create();
 
     Livewire::actingAs($this->user)
@@ -31,16 +35,16 @@ test('can see categories', function () {
 });
 
 
-test('cannot see other user categories', function () {
-    $other_user = User::factory()->createOne();
-    $other_category = PostCategory::factory()->for($other_user)->create();
+it('cannot see other user categories', function () {
+    $otherUser = User::factory()->createOne();
+    $otherCategory = PostCategory::factory()->for($otherUser)->create();
 
     Livewire::actingAs($this->user)
         ->test(ManagePostCategories::class)
-        ->assertCanNotSeeTableRecords([$other_category]);
+        ->assertCanNotSeeTableRecords([$otherCategory]);
 });
 
-test('can create category', function () {
+it('can create category', function () {
     $testForm = [
         'name' => 'new category',
         'slug' => 'new-category',
@@ -60,7 +64,7 @@ test('can create category', function () {
 });
 
 
-test('can update category', function () {
+it('can update category', function () {
     $oldCategory = PostCategory::factory()->for($this->user)->create();
     $newCategoryUpdated = [
         'name' => 'updated category',
@@ -80,7 +84,27 @@ test('can update category', function () {
     assertDatabaseHas('post_categories', $newCategoryUpdated);
 });
 
-test('can delete category', function () {
+it('cannot edit other user post category', function () {
+    $otherPostCategory = PostCategory::factory()->for(User::factory()->createOne())->create();
+
+    Livewire::actingAs($this->user)
+        ->test(ManagePostCategories::class)
+        ->mountAction(TestAction::make('edit')->table($otherPostCategory))
+        ->assertActionNotMounted();
+});
+
+it('cannot delete other user post category', function () {
+    $otherPostCategory = PostCategory::factory()->for(User::factory()->createOne())->create();
+
+    Livewire::actingAs($this->user)
+        ->test(ManagePostCategories::class)
+        ->mountAction(TestAction::make('delete')->table($otherPostCategory))
+        ->assertActionNotMounted();
+
+    assertDatabaseHas('post_categories', ['id' => $otherPostCategory->id]);
+});
+
+it('can delete category', function () {
     $category = PostCategory::factory()->for($this->user)->create();
 
     Livewire::actingAs($this->user)

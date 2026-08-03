@@ -7,24 +7,29 @@ use App\Filament\Resources\Posts\PostResource;
 use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
+use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertDatabaseMissing;
+
 use Livewire\Livewire;
 
 uses()->beforeEach(function () {
     $this->user = User::factory()->createOne();
+    $this->table = with(new Post)->getTable();
     actingAs($this->user);
 });
 
-test('can render page', function () {
+it('can render page', function () {
     $this
         ->get(PostResource::getUrl())
         ->assertSuccessful();
 });
 
-test('can see post', function () {
+it('can see post', function () {
     $post = Post::factory()->for($this->user)->create();
 
     Livewire::actingAs($this->user)
@@ -32,7 +37,7 @@ test('can see post', function () {
         ->assertCanSeeTableRecords([$post]);
 });
 
-test('cannot see other user posts', function () {
+it('cannot see other user posts', function () {
     $otherUser = User::factory()->createOne();
     $otherPost = Post::factory()->for($otherUser)->create();
 
@@ -41,7 +46,7 @@ test('cannot see other user posts', function () {
         ->assertCanNotSeeTableRecords([$otherPost]);
 });
 
-test('can create post', function () {
+it('can create post', function () {
     $category = PostCategory::factory()->for($this->user)->create();
 
     $testForm = [
@@ -61,7 +66,7 @@ test('can create post', function () {
         ->call('create')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas('posts', [
+    assertDatabaseHas($this->table, [
         'title' => $testForm['title'],
         'slug' => $testForm['slug'],
         'user_id' => $this->user->id,
@@ -70,7 +75,7 @@ test('can create post', function () {
     ]);
 });
 
-test('can update post', function () {
+it('can update post', function () {
     $oldPost = Post::factory()->for($this->user)->create();
     $newCategoryUpdated = PostCategory::factory()->for($this->user)->createOne();
     $newPostUpdated = [
@@ -92,7 +97,7 @@ test('can update post', function () {
         ->call('save')
         ->assertHasNoFormErrors();
 
-    assertDatabaseHas('posts', [
+    assertDatabaseHas($this->table, [
         'title' => $newPostUpdated['title'],
         'slug' => $newPostUpdated['slug'],
         'post_category_id' => $newPostUpdated['post_category_id'],
@@ -102,6 +107,13 @@ test('can update post', function () {
     ]);
 });
 
+it('cannot edit other user post', function () {
+    $otherPost = Post::factory()->for(User::factory()->createOne())->create();
+
+    expect(fn() => Livewire::actingAs($this->user)
+        ->test(EditPost::class, ['record' => $otherPost->getRouteKey()]))
+        ->toThrow(ModelNotFoundException::class);
+});
 
 it('can delete post', function () {
     $post = Post::factory()->for($this->user)->create();
@@ -109,8 +121,20 @@ it('can delete post', function () {
     Livewire::actingAs($this->user)
         ->test(ListPosts::class)
         ->callTableAction('delete', $post)
-        ->callMountedAction()
+        ->callMountedTableAction()
         ->assertHasNoTableActionErrors();
 
-    expect(Post::find($post->id))->toBeNull();
+    assertDatabaseMissing($this->table, [
+        'id' => $post->id
+    ]);
+});
+
+it('cannot delete other user post', function () {
+    $otherPost = Post::factory()->for(User::factory()->createOne())->create();
+
+    expect(fn() => Livewire::actingAs($this->user)
+        ->test(ListPosts::class)
+        ->callTableAction('delete', $otherPost)
+        ->callMountedTableAction())
+        ->toThrow(ActionNotResolvableException::class);
 });

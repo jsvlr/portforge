@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ProjectRoles\Pages;
 
 use App\Filament\Resources\ProjectRoles\ProjectRoleResource;
+use App\Filament\Widgets\ProjectRoleStats;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
@@ -35,5 +36,13 @@ class ManageProjectRoles extends ManageRecords
     public function getTitle(): string|Htmlable
     {
         return 'Roles';
+    }
+
+    #[Override]
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ProjectRoleStats::class
+        ];
     }
 }

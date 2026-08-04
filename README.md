@@ -1,58 +1,225 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Portfolio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-user personal portfolio & blog admin panel built with **Laravel 13**, **Filament 5**, **Livewire 4**, and **Pest**. Each registered user gets their own isolated content workspace — posts, post categories, projects, and project roles are automatically scoped to the authenticated owner.
 
-## About Laravel
+## ✨ Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Admin Panel (`/admin`)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Authentication**
+    - Login, registration, password reset, and user profile
+    - Enhanced auth UI (right-side form panel) via `filament-auth-ui-enhancer`
+    - Database notifications
+    - Email multi-factor authentication (MFA)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Blog Management**
+    - **Posts** — full CRUD with rich text editor, cover image, tags, publish status (`Published` / `Draft`), views counter, and SEO meta fields
+    - **Post Categories** — manage categories with an active/inactive visibility toggle, deduplicated slugs, and post counts
 
-## Learning Laravel
+- **Portfolio Management**
+    - **Projects** — full CRUD with rich text editor, image gallery (up to 5 images), client name, project role assignment, status (`Published` / `Draft`), start/end dates, and views counter
+    - **Project Roles** — reusable roles (e.g. Backend Developer, UI Designer) attached to projects
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Dashboard Widgets**
+    - Stats overviews for total posts, published, drafts, and total views — each with a 7-day trend chart
+    - Category statistics
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Settings**
+    - Site-wide general settings via `filament-settings`
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### Public Pages
 
-## Agentic Development
+- `/` — Home (Volt page)
+- `/projects` — Projects listing (Volt page)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### Multi-User Data Isolation
+
+- The `BelongToUser` trait applies a global `UserScope` to all content models
+- Every user **only sees, edits, and deletes their own records**
+- New records are automatically assigned to the authenticated user on creation
+
+## 🛠 Tech Stack
+
+| Layer    | Technology                                           |
+| -------- | ---------------------------------------------------- |
+| Backend  | PHP 8.3, Laravel 13                                  |
+| Admin UI | Filament 5.6                                         |
+| Frontend | Livewire 4.3, Tailwind CSS 4, Vite 8                 |
+| Testing  | Pest 4.7 (feature tests)                             |
+| Database | MySQL (default) / SQLite (tests)                     |
+| Extras   | Laravel Sanctum, Filament Settings, Auth UI Enhancer |
+
+## 📦 Installation
+
+### Prerequisites
+
+- PHP ^8.3
+- Composer
+- Node.js & npm
+- MySQL (or SQLite for quick setup)
+
+### Steps
 
 ```bash
-composer require laravel/boost --dev
+# 1. Clone the repository
+git clone https://github.com/jsvlr/my-portfolio.git
+cd portfolio
 
-php artisan boost:install
+# 2. Install PHP dependencies
+composer install
+
+# 3. Set up environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Configure database in .env (DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=portfolio
+DB_USERNAME=root
+DB_PASSWORD=
+
+# 5. Run migrations
+php artisan migrate
+
+# 6. Install & build frontend assets
+npm install
+npm run build
+
+# 7. Start the development server
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### One-Command Setup (alternative)
 
-## Contributing
+```bash
+composer run setup
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+This runs `composer install`, creates `.env`, generates the app key, migrates, installs npm dependencies, and builds assets.
 
-## Code of Conduct
+## 🚀 Development
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Run the full dev stack (server, queue, logs, and Vite) concurrently:
 
-## Security Vulnerabilities
+```bash
+composer run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+This starts:
 
-## License
+- `php artisan serve` — web server
+- `php artisan queue:listen` — queue worker
+- `php artisan pail` — real-time log tailing
+- `npm run dev` — Vite dev server
+
+## 🧪 Testing
+
+The project uses **Pest** for feature testing, exercising the full Filament admin panel — CRUD operations, table actions, and multi-user authorization.
+
+```bash
+# Run the entire test suite
+composer test
+
+# Or directly
+php artisan test
+
+# Run a single test file
+php artisan test tests/Feature/ProjectTest.php
+
+# Run a filtered test
+php artisan test --filter="can create project"
+```
+
+### Test Coverage
+
+| Test File              | Verifies                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `PostTest.php`         | Render, view own posts, cannot view others, create, update, cannot update others, delete                          |
+| `PostCategoryTest.php` | Render, view own categories, cannot view others, create, update, cannot edit others, cannot delete others, delete |
+| `ProjectTest.php`      | Render, view own projects, cannot view others, create, update, cannot edit others, delete, cannot delete others   |
+| `ProjectRoleTest.php`  | Project role CRUD and user isolation                                                                              |
+| `PagesTest.php`        | Public homepage accessibility                                                                                     |
+
+### Testing Notes
+
+- Tests use the **`RefreshDatabase`**-style behavior via Pest's `TestCase`
+- Each test authenticates a freshly factory-created user and asserts both the **happy path** and **user isolation** (i.e., users cannot see/edit/delete other users' records)
+- `assertDatabaseHas` / `assertDatabaseMissing` verify actual database state, accounting for Eloquent casts (JSON-encoded arrays, `Y-m-d H:i:s` datetime formats)
+
+## 📁 Project Structure
+
+```
+app/
+├── Enums/
+│   ├── NavigationGroup.php       # Admin navigation grouping
+│   ├── PostStatusEnum.php        # Post: Published / Draft
+│   └── ProjectStatusEnum.php     # Project: Published / Draft
+├── Filament/
+│   ├── Pages/
+│   │   ├── Auth/Login.php        # Custom login page
+│   │   └── Settings/General.php  # Site settings
+│   ├── Resources/
+│   │   ├── PostCategories/       # Manage categories (table actions)
+│   │   ├── Posts/                # Posts CRUD
+│   │   ├── ProjectRoles/         # Project roles CRUD
+│   │   └── Projects/             # Projects CRUD
+│   └── Widgets/
+│       ├── PostStats.php         # Dashboard blog stats
+│       └── PostCategoryStats.php # Dashboard category stats
+├── Models/
+│   ├── Post.php
+│   ├── PostCategory.php
+│   ├── Project.php
+│   ├── ProjectRole.php
+│   ├── User.php
+│   ├── Scopes/UserScope.php      # Global user-isolation scope
+│   └── Traits/BelongToUser.php   # Applies UserScope + auto-assigns user_id
+└── Providers/
+    └── Filament/
+        ├── AdminBaseProvider.php # Shared panel config
+        └── AdminPanelProvider.php# Admin panel setup
+
+database/
+├── factories/                    # PostFactory, ProjectFactory, etc.
+├── migrations/                   # Users, posts, categories, projects, roles
+└── seeders/
+
+resources/views/pages/            # Public Volt pages (Home, Projects)
+
+routes/web.php                    # Public routes
+```
+
+## 🧩 Key Implementation Details
+
+### User Isolation via Global Scope
+
+`app/Models/Traits/BelongToUser.php` is used by `Post`, `PostCategory`, `Project`, and `ProjectRole`:
+
+```php
+protected static function booted(): void
+{
+    static::addGlobalScope(new UserScope);
+
+    static::creating(function ($model) {
+        if (auth()->check() && empty($model->user_id)) {
+            $model->user_id = auth()->id();
+        }
+    });
+}
+```
+
+- **`UserScope`** adds `WHERE user_id = <current user>` to every query, so users can never see (or resolve) other users' records.
+- The **`creating` hook** auto-assigns the authenticated user to new records — no need to set `user_id` manually.
+
+### Testing User Isolation
+
+Because of the global scope:
+
+- **Page-based records** (`EditRecord`) throw `ModelNotFoundException` when trying to access another user's record.
+- **Table actions** (`EditAction` / `DeleteAction`) silently fail to mount — the action is treated as never clicked. Tests assert this with `assertActionNotMounted()` and verify data integrity with `assertDatabaseMissing()` / `assertDatabaseHas()`.
+
+## 🔗 License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

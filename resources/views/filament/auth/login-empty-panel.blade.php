@@ -1,16 +1,5 @@
-<div
-    style="
-  background-image: url('https://images.unsplash.com/photo-1530533718754-001d2668365a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  height: 100%;
-  width: 100%;
-  padding: 0px;
-  margin: 0px;
-  
-  ">
-    <div class="flex h-full flex-col items-center justify-center gap-y-8 px-8 py-12 text-center">
+<div>
+    <div class=" flex h-full flex-col items-center justify-center gap-y-8 px-8 py-12 text-center">
         <div class="w-100 space-y-2">
             <h1 class="text-2xl font-bold text-white">
                 Welcome to {{ config('app.name') }}

@@ -3,6 +3,7 @@
 namespace App\Models\Traits;
 
 use App\Models\Scopes\UserScope;
+use Illuminate\Support\Facades\Schema;
 
 trait BelongToUser
 {

@@ -3,16 +3,28 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\PostCategoryController;
+use App\Models\Post;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+
+    return response()->json([
+        // The access token used to authenticate the current request.
+        // Will be a Laravel\Sanctum\PersonalAccessToken when the request
+        // is authenticated via a bearer token, or a TransientToken
+        // (empty object) when authenticated via the "web" session guard.
+        'current_token' => $user->currentAccessToken(),
+
+        // Every personal access token that has ever been created for this user.
+        'tokens' => $user->tokens,
+    ]);
 })->middleware('auth:sanctum');
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/posts', [PostController::class, 'index']);
-    Route::get('/posts/{post}', [PostController::class, 'show']);
 
-    Route::get('/post-categories', [PostCategoryController::class, 'index']);
-    Route::get('/post-categories/{postCategory}', [PostCategoryController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+
+    // table name is the endpoints of each sources
+    Route::apiResource(with(new Post)->getTable(), PostController::class);
 });

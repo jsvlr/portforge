@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 
 class PostController extends Controller
 {
     public function index()
     {
-        return Post::with('post_category')->get();
+        return PostResource::collection(Post::with('post_category')->get());
     }
 
     public function show(Post $post)
     {
-        return $post->load('post_category');
+        return new PostResource($post->load('post_category'));
     }
 }

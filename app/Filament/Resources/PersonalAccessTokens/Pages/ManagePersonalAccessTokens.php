@@ -80,22 +80,7 @@ class ManagePersonalAccessTokens extends ManageRecords
                         ])
 
                 ])
-                ->using(function (array $data): Model {
-                    return $this->createdToken;
-                }),
-
-
-            // Action::make('showToken')
-            //     ->modalHeading('Copy your token now')
-            //     ->modalDescription('This is the only time you will see this token. It cannot be retrieved again.')
-            //     ->modalSubmitAction(false)
-            //     ->modalCancelActionLabel('Done')
-            //     ->schema([
-            //         Placeholder::make('token')
-            //             ->label('')
-            //             ->content(fn() => session('plain_text_token'))
-            //             ->extraAttributes(['class' => 'text-lg font-mono text-center break-all'])
-            //     ])
+                ->using(fn() => $this->createdToken),
         ];
     }
 }

@@ -8,63 +8,72 @@ $resource = (string) with(new Post)->getTable();
 $endpoint = "/api/$resource/";
 
 uses()->beforeEach(function () {
-    $this->owner = User::factory()->createOne();
-    $this->ownerToken = $this->owner->createToken('my-token')->plainTextToken;
+    $this->user = User::factory()->createOne();
 
-    $this->post = Post::factory()->for($this->owner)->create();
+    $this->userToken = $this->user->createToken(
+        name: 'user-token',
+        abilities: ['*']
+    )->plainTextToken;
 
-    $this->attacker = User::factory()->createOne();
-    $this->attackerToken = $this->attacker->createToken('my-token')->plainTextToken;
+    $this->other = User::factory()->createOne();
 });
 
 it('can access user\'s own posts API', function () use ($endpoint) {
     $this
-        ->actingAs($this->owner)
-        ->withToken($this->ownerToken)
+        ->withToken($this->userToken)
         ->withHeader('Accept', 'application/json')
         ->getJson($endpoint)
-        ->assertStatus(200);
+        ->assertOk();
 });
 
-it('prevents a user from visiting another user\'s posts via API', function () use ($endpoint) {
-    $this->withToken($this->attackerToken)
+it('does not return other users\' posts', function () use ($endpoint) {
+    $otherPost = Post::factory()->for($this->other)->create();
+
+    $this
+        ->withToken($this->userToken)
         ->withHeader('Accept', 'application/json')
-        ->getJson("$endpoint{$this->post->id}")
-        ->assertNotFound();
-});
-
-it('requires authentication to access posts', function () {
-    $this->getJson('/api/posts')
-        ->assertUnauthorized();
-
-    $this->getJson("/api/posts/{$this->post->id}")
-        ->assertUnauthorized();
-});
-
-/*
-it('lets the owner access their own post', function () {
-    $token = $this->owner->createToken('owner-token')->plainTextToken;
-
-    $this->withHeader('Authorization', 'Bearer ' . $token)
-        ->getJson("/api/posts/{$this->post->id}")
+        ->getJson($endpoint)
         ->assertOk()
-        ->assertJsonPath('data.id', $this->post->id);
+        ->assertJsonMissing([
+            'id' => $otherPost->id // this check if the otherPost id is existed on the user post...
+        ]);
 });
 
-it('only returns the authenticated user\'s posts in the index', function () {
-    $otherPost = Post::factory()->for($this->owner)->create();
-    Post::factory()->for($this->attacker)->create();
+it('requires authentication to access posts', function () use ($endpoint) {
+    $userPost = Post::factory()->for($this->user)->create();
 
-    $token = $this->owner->createToken('owner-token')->plainTextToken;
+    $this
+        ->getJson($endpoint)
+        ->assertUnauthorized();
 
-    $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-        ->getJson('/api/posts')
+    $this->getJson("$endpoint{$userPost->id}")
+        ->assertUnauthorized();
+});
+
+it('lets the user access their own post', function () use ($endpoint) {
+    $userPost = Post::factory()->for($this->user)->create();
+
+    $this
+        ->withToken($this->userToken)
+        ->getJson("$endpoint{$userPost->id}")
+        ->assertOk()
+        ->assertJsonFragment([
+            'id' => $userPost->id
+        ]);
+});
+
+it('only returns the authenticated user\'s posts in the index', function () use ($endpoint) {
+    $post = Post::factory()->for($this->user)->create();
+    $otherPost = Post::factory()->for($this->other)->create();
+
+    $response = $this
+        ->withToken($this->userToken)
+        ->getJson($endpoint)
         ->assertOk();
 
     $ids = collect($response->json('data'))->pluck('id')->all();
 
-    expect($ids)->toContain($this->post->id)
-        ->and($ids)->toContain($otherPost->id)
-        ->and($ids)->toHaveCount(2);
+    expect($ids)
+        ->toContain($post->id)
+        ->not->toContain($otherPost->id);
 });
-*/

@@ -1,7 +1,0 @@
-{
-    "agents": ["claude_code", "cline"],
-    "cloud": false,
-    "mcp": true,
-    "nightwatch": false,
-    "sail": false
-}

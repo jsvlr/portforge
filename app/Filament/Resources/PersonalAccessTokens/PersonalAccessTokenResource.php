@@ -49,6 +49,11 @@ class PersonalAccessTokenResource extends Resource
                 TextColumn::make('name')
                     ->searchable(),
 
+                TextColumn::make('abilities')
+                    ->badge()
+                    ->separator(',')
+                    ->formatStateUsing(fn($state) => $state),
+
             ])
             ->filters([
                 //

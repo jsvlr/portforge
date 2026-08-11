@@ -3,20 +3,19 @@
 namespace App\Filament\Resources\PersonalAccessTokens\Pages;
 
 use App\Filament\Resources\PersonalAccessTokens\PersonalAccessTokenResource;
-use App\Models\User;
-use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Checkbox;
-use Filament\Notifications\Notification;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Wizard\Step;
 
 class ManagePersonalAccessTokens extends ManageRecords
 {
@@ -32,21 +31,49 @@ class ManagePersonalAccessTokens extends ManageRecords
                 ->label('New token')
                 ->icon(Heroicon::Plus)
                 ->steps([
-                    Wizard\Step::make('Details')
+                    Step::make('Details')
                         ->schema([
                             TextInput::make('name')
                                 ->required(),
+
+                            Checkbox::make('grant_all')
+                                ->live()
+                                ->label('Full access (use with caution)')
+                                ->afterStateUpdated(function (bool $state, Set $set) {
+                                    if ($state) {
+                                        $set('abilities', ['read', 'create', 'update', 'delete']);
+                                    }
+                                }),
+
+                            CheckboxList::make('abilities')
+                                ->required()
+                                ->label('Token Permissions')
+                                ->options([
+                                    'read' => 'Read',
+                                    'create' => 'Create',
+                                    'update' => 'Update',
+                                    'delete' => 'Delete',
+                                ])
+                                ->descriptions([
+                                    'read' => 'View resources',
+                                    'create' => 'Create new resources',
+                                    'update' => 'Modify existing resources',
+                                    'delete' => 'Remove resources permanently',
+                                ])
+                                ->default(['read'])
+                                ->columns(2)
+
                         ])
                         ->afterValidation(function (Get $get) {
                             $newToken = filament()->auth()->user()->createToken(
                                 name: $get('name'),
-                                abilities: ['*']
+                                abilities: $get('abilities')
                             );
                             $this->plainTextToken = $newToken->plainTextToken;
                             $this->createdToken = $newToken->accessToken;
                         }),
 
-                    Wizard\Step::make('Token')
+                    Step::make('Token')
                         ->schema([
                             Section::make()
                                 ->icon(Heroicon::ExclamationTriangle)

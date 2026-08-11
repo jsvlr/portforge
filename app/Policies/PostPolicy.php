@@ -14,7 +14,7 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->id === Auth::id();
+        return $user->id === filament()->auth()->id();
     }
 
     /**
@@ -30,7 +30,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return $user->id === Auth::id();
+        return $user->tokenCan('posts:create');
     }
 
     /**
@@ -38,7 +38,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->tokenCan('posts:update');
     }
 
     /**
@@ -46,7 +46,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id;
+        return $user->tokenCan('posts:delete');
     }
 
     /**

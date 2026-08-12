@@ -72,7 +72,7 @@ it('cannot see other user posts', function () {
  */
 
 it('can create post', function () {
-    Sanctum::actingAs($this->user, ['posts:create']);
+    Sanctum::actingAs($this->user, ['posts:create', 'posts:read']);
 
     $category = PostCategory::factory()->for($this->user)->create();
     $testForm = validPostForm(['post_category_id' => $category->id]);

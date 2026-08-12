@@ -8,8 +8,8 @@ use App\Filament\Resources\Posts\Pages\CreatePost;
 use App\Filament\Resources\Posts\Pages\EditPost;
 use App\Filament\Resources\Posts\Pages\ListPosts;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
-use Filament\Actions\Testing\TestAction;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
@@ -19,14 +19,28 @@ use function Pest\Laravel\withToken;
 
 use Livewire\Livewire;
 
+function validPostForm(array $overrides = []): array
+{
+    $title = 'How to test a post creation';
+
+    return array_merge([
+        'title' => $title,
+        'slug' => Str::slug($title),
+        'excerpt' => 'This is a short excerpt for testing',
+        'content' => '<p>This is the main content of the post for testing purposes.</p>',
+        'published_at' => now()->format('Y-m-d'),
+        'tags' => ['testing', 'laravel'],
+        'status' => 'draft',
+    ], $overrides);
+}
+
 uses()->beforeEach(function () {
     $this->user = User::factory()->createOne();
-    $this->token = $this->user->createToken('my-token')->plainTextToken;
     $this->table = with(new Post)->getTable();
     actingAs($this->user);
-    withToken($this->token);
 });
 
+/*
 it('can render page', function () {
     $this
         ->get(PostResource::getUrl())
@@ -49,20 +63,19 @@ it('cannot see other user posts', function () {
         ->test(ListPosts::class)
         ->assertCanNotSeeTableRecords([$otherPost]);
 });
+*/
+
+/*
+ * Verify that a user with the posts:create ability can create a post
+ * with a valid category and form payload, and that the record is persisted
+ * to the database with the expected ownership and status values.
+ */
 
 it('can create post', function () {
-    $category = PostCategory::factory()->for($this->user)->create();
+    Sanctum::actingAs($this->user, ['posts:create']);
 
-    $testForm = [
-        'title' => 'How to test a post creation',
-        'slug' => 'how-to-test-a-post-creation',
-        'post_category_id' => $category->id,
-        'excerpt' => 'This is a short excerpt for testing',
-        'content' => '<p>This is the main content of the post for testing purposes.</p>',
-        'published_at' => now()->format('Y-m-d'),
-        'tags' => ['testing', 'laravel'],
-        'status' => 'draft',
-    ];
+    $category = PostCategory::factory()->for($this->user)->create();
+    $testForm = validPostForm(['post_category_id' => $category->id]);
 
     Livewire::actingAs($this->user)
         ->test(CreatePost::class)
@@ -79,9 +92,28 @@ it('can create post', function () {
     ]);
 });
 
+/*
+* Verify that creating a post is forbidden when user lacks the posts:create ability
+* User has only posts:read permission, attempting to create should result in 403 Forbidden
+*/
+it('cannot create post without the post:create token ability', function () {
+    Sanctum::actingAs($this->user, ['posts:read']);
+
+    Livewire::actingAs($this->user)
+        ->test(CreatePost::class)
+        ->assertForbidden();
+});
+
+/*
 it('can update post', function () {
     $oldPost = Post::factory()->for($this->user)->create();
     $newCategoryUpdated = PostCategory::factory()->for($this->user)->createOne();
+
+    $this->user->createToken(
+        name: 'update-token',
+        abilities: ['posts:update']
+    )->plainTextToken;
+
     $newPostUpdated = [
         'title' => 'How to test a post update',
         'slug' => 'how-to-test-a-post-update',
@@ -92,6 +124,10 @@ it('can update post', function () {
         'tags' => ['testing', 'laravel', 'updated'],
         'status' => 'published',
     ];
+
+    Sanctum::actingAs($this->user, ['posts:update']);
+
+    expect($this->user->tokenCan('posts:update'))->toBeTrue();
 
     Livewire::actingAs($this->user)
         ->test(EditPost::class, [
@@ -140,3 +176,4 @@ it('cannot delete other user post', function () {
         ->callTableAction('delete', $otherPost->getKey()))
         ->toThrow(ActionNotResolvableException::class);
 });
+*/

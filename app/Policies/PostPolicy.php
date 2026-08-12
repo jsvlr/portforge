@@ -14,7 +14,7 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->id === filament()->auth()->id();
+        return is_null($user->currentAccessToken()) || $user->tokenCan('posts:read');
     }
 
     /**
@@ -30,8 +30,8 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return true;
-        // return $user->tokenCan('posts:create');
+        // return true;
+        return $user->tokenCan('posts:create');
     }
 
     /**

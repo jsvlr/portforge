@@ -17,7 +17,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
-use Override;
 
 class PersonalAccessTokenResource extends Resource
 {

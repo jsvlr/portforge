@@ -10,17 +10,21 @@ use App\Filament\Resources\Posts\Pages\ListPosts;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
+use function Pest\Laravel\withToken;
 
 use Livewire\Livewire;
 
 uses()->beforeEach(function () {
     $this->user = User::factory()->createOne();
+    $this->token = $this->user->createToken('my-token')->plainTextToken;
     $this->table = with(new Post)->getTable();
     actingAs($this->user);
+    withToken($this->token);
 });
 
 it('can render page', function () {
@@ -120,12 +124,11 @@ it('can delete post', function () {
 
     Livewire::actingAs($this->user)
         ->test(ListPosts::class)
-        ->callTableAction('delete', $post)
-        ->callMountedTableAction()
+        ->callTableAction('delete', $post->getKey())
         ->assertHasNoTableActionErrors();
 
     assertDatabaseMissing($this->table, [
-        'id' => $post->id
+        'id' => $post->id,
     ]);
 });
 
@@ -134,7 +137,6 @@ it('cannot delete other user post', function () {
 
     expect(fn() => Livewire::actingAs($this->user)
         ->test(ListPosts::class)
-        ->callTableAction('delete', $otherPost)
-        ->callMountedTableAction())
+        ->callTableAction('delete', $otherPost->getKey()))
         ->toThrow(ActionNotResolvableException::class);
 });

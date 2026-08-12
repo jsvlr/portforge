@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Posts\Pages;
 use App\Filament\Resources\Posts\PostResource;
 use Filament\Resources\Pages\CreateRecord;
 use Override;
-use Str;
 
 class CreatePost extends CreateRecord
 {

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\PostCategories\Pages;
 use App\Filament\Resources\PostCategories\PostCategoryResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Override;
 
 class ManagePostCategories extends ManageRecords
 {

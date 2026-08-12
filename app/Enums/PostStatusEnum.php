@@ -6,8 +6,6 @@ use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Contracts\HasColor;
 use Illuminate\Contracts\Support\Htmlable;
 
-use Override;
-
 enum PostStatusEnum: string implements HasLabel, HasColor
 {
     case Draft = 'draft';

@@ -5,7 +5,6 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
-use Override;
 
 enum ProjectStatusEnum: string implements HasColor, HasLabel
 {

@@ -4,7 +4,6 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
-use Override;
 
 enum NavigationGroup: string implements HasLabel
 {

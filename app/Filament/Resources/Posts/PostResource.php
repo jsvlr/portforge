@@ -14,7 +14,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Override;
 use UnitEnum;
 
 class PostResource extends Resource

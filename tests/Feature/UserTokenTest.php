@@ -11,7 +11,7 @@ it('returns the current bearer token and all tokens for the authenticated user',
     $tokenTwo = $this->user->createToken('token-two');
 
     $response = $this
-        ->withHeader('Authorization', 'Bearer ' . $tokenTwo->plainTextToken)
+        ->withToken($tokenTwo->plainTextToken)
         ->getJson('/api/user');
 
     $response->assertSuccessful();

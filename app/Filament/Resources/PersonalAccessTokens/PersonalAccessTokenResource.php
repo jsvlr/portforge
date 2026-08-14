@@ -75,7 +75,6 @@ class PersonalAccessTokenResource extends Resource
         ];
     }
 
-    #[Override]
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -83,13 +82,11 @@ class PersonalAccessTokenResource extends Resource
             ->where('tokenable_type', (new (filament()->auth()->user()::class))->getMorphClass());
     }
 
-    #[Override]
     public static function getNavigationBadge(): ?string
     {
         return static::getEloquentQuery()->count();
     }
 
-    #[Override]
     public static function getNavigationBadgeTooltip(): string|Htmlable|null
     {
         return 'token created';
